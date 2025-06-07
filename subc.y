@@ -14,6 +14,24 @@ int   yyerror (char* s);
 int   get_lineno();
 extern char* file_name;
 
+void error_assignable(void);
+void error_incompatible(void);
+void error_null(void);
+void error_subscript(void);
+void error_incomplete(void);
+void error_return(void);
+void error_function(void);
+void error_arguments(void);
+void error_comparable(void);
+void error_binary(void);
+void error_unary(void);
+void error_addressof(void);
+void error_indirection(void);
+void error_array(void);
+void error_struct(void);
+void error_member(void);
+void error_strurctp(void);
+
 static int in_struct = 0;
 
 %}
@@ -71,13 +89,13 @@ ext_def_list
 ext_def
   : type_specifier pointers ID ';'
       {
-        Type *t = $1; if($2) t = make_pointer(t);
+        Type *t = (Type*) $1; if($2) t = make_pointer(t);
         if(is_declared_current($3)) error_redeclaration();
         else add_symbol($3, t);
       }
   | type_specifier pointers ID '[' INTEGER_CONST ']' ';'
       {
-        Type *t = $1; if($2) t = make_pointer(t);
+        Type *t = (Type*) $1; if($2) t = make_pointer(t);
         t = make_array(t);
         if(is_declared_current($3)) error_redeclaration();
         else add_symbol($3, t);
@@ -110,14 +128,14 @@ func_decl
   : type_specifier pointers ID '(' { push_scope(); begin_param_list(); } ')'
       {
         int cnt; ParamList *ps = end_param_list(&cnt);
-        Type *ret = $1; if($2) ret = make_pointer(ret);
+        Type *ret = (Type*) $1; if($2) ret = make_pointer(ret);
         if(!add_function($3, ret, ps, cnt)) error_redeclaration();
         set_current_return(ret);
       }
   | type_specifier pointers ID '(' { push_scope(); begin_param_list(); } param_list ')'
       {
         int cnt; ParamList *ps = end_param_list(&cnt);
-        Type *ret = $1; if($2) ret = make_pointer(ret);
+        Type *ret = (Type*) $1; if($2) ret = make_pointer(ret);
         if(!add_function($3, ret, ps, cnt)) error_redeclaration();
         set_current_return(ret);
       }
@@ -138,7 +156,7 @@ param_list
 param_decl
   : type_specifier pointers ID
       {
-        Type *t = $1;
+        Type *t = (Type*) $1;
         if($2) t = make_pointer(t);
         if(is_declared_current($3)) error_redeclaration();
         else add_symbol($3, t);
@@ -147,7 +165,7 @@ param_decl
       }
   | type_specifier pointers ID '[' INTEGER_CONST ']'
       {
-        Type *t = $1;
+        Type *t = (Type*) $1;
         if($2) t = make_pointer(t);
         t = make_array(t);
         if(is_declared_current($3)) error_redeclaration();
@@ -165,7 +183,7 @@ def_list
 def
   : type_specifier pointers ID ';'
       {
-        Type *t = $1; if($2) t = make_pointer(t);
+        Type *t = (Type*) $1; if($2) t = make_pointer(t);
         if(in_struct) {
           add_field($3, t);
         } else {
@@ -175,7 +193,7 @@ def
       }
   | type_specifier pointers ID '[' INTEGER_CONST ']' ';'
       {
-        Type *t = $1; if($2) t = make_pointer(t);
+        Type *t = (Type*) $1;; if($2) t = make_pointer(t);
         t = make_array(t);
         if(in_struct) {
           add_field($3, t);
@@ -407,6 +425,11 @@ void error_preamble(void) {
   printf("%s:%d: error: ", file_name, get_lineno());
 }
 
+void error_incompatible(void) {
+  if(!file_name) file_name = "stdin";
+  printf("%s:%d: error: ", file_name, get_lineno());
+}
+
 void error_undeclared(void) {
   error_preamble();
   printf("use of undeclared identifier\n");
@@ -420,11 +443,6 @@ void error_redeclaration(void) {
 void error_assignable(void) {
   error_preamble();
   printf("lvalue is not assignable\n");
-}
-
-void error_incompatible(void) {
-  error_preamble();
-  printf("incompatible types for assignment operation\n");
 }
 
 void error_null(void) {
@@ -455,6 +473,52 @@ void error_arguments(void) {
   error_preamble();
   printf("incompatible arguments in function call\n");
 }
+
+void error_comparable(void) {
+  error_preamble();
+  printf("operands are not comparable\n");
+}
+
+void error_binary(void) {
+  error_preamble();
+  printf("invalid operands to binary operator\n");
+}
+
+void error_unary(void) {
+  error_preamble();
+  printf("invalid operand to unary operator\n");
+}
+
+void error_addressof(void) {
+  error_preamble();
+  printf("invalid operand to address-of operator\n");
+}
+
+void error_indirection(void) {
+  error_preamble();
+  printf("invalid operand to indirection operator\n");
+}
+
+void error_array(void) {
+  error_preamble();
+  printf("subscripted value is not an array\n");
+}
+
+void error_struct(void) {
+  error_preamble();
+  printf("member reference base type is not a struct\n");
+}
+
+void error_member(void) {
+  error_preamble();
+  printf("no such member in struct\n");
+}
+
+void error_strurctp(void) {
+  error_preamble();
+  printf("arrow operator requires pointer to struct\n");
+}
+
 
 int yyerror(char* s) {
   fprintf(stderr, "%s at line %d\n", s, get_lineno());
