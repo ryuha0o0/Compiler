@@ -20,15 +20,23 @@ typedef enum {
     TYPE_NULL
 } TypeKind;
 
+typedef struct Field {
+    char *name;
+    struct Type *type;
+    struct Field *next;
+} Field;
+
 typedef struct Type {
     TypeKind kind;
     struct Type *base;
     char *struct_name; /* for struct */
+    Field *fields;     /* for struct */
 } Type;
 
 typedef struct ExtType {
     Type *type;
     int lvalue; /* 1 if expression can appear on LHS */
+    char *name;  /* for function identifiers */
 } ExtType;
 
 // Global file name for error messages
@@ -62,7 +70,6 @@ void begin_param_list();
 void add_param(Type *type);
 ParamList *end_param_list(int *count);
 
-void add_function(const char *name, Type *ret, ParamList *params, int param_cnt);
 int get_function(const char *name, Type **ret, ParamList **params, int *param_cnt);
 
 /* type constructors */
@@ -71,6 +78,23 @@ Type *make_pointer(Type *base);
 Type *make_array(Type *base);
 Type *make_struct(const char *name);
 
-// declare functions used in other source code file here
+/* helpers for extended types */
+ExtType *make_ext(Type *t, int lvalue);
+int same_type(Type *a, Type *b);
+int is_numeric(Type *t);
+int is_pointer(Type *t);
+
+/* struct field helpers */
+void start_struct(const char *name);
+void add_field(const char *name, Type *type);
+Type *end_struct(int *ok);
+Type *get_struct_field_type(const char *struct_name, const char *field);
+
+/* function related helpers */
+int add_function(const char *name, Type *ret, ParamList *params, int param_cnt);
+int is_function(const char *name);
+void set_current_return(Type *t);
+Type *get_current_return();
+
 
 #endif
