@@ -426,8 +426,8 @@ void error_preamble(void) {
 }
 
 void error_incompatible(void) {
-  if(!file_name) file_name = "stdin";
-  printf("%s:%d: error: ", file_name, get_lineno());
+  error_preamble();
+  printf("incompatible types for assignment operation\n");
 }
 
 void error_undeclared(void) {
@@ -476,22 +476,22 @@ void error_arguments(void) {
 
 void error_comparable(void) {
   error_preamble();
-  printf("operands are not comparable\n");
+  printf("types are not comparable in binary expression\n");
 }
 
 void error_binary(void) {
   error_preamble();
-  printf("invalid operands to binary operator\n");
+  printf("invalid operands to binary expression\n");
 }
 
 void error_unary(void) {
   error_preamble();
-  printf("invalid operand to unary operator\n");
+  printf("invalid argument type to unary expression\n");
 }
 
 void error_addressof(void) {
   error_preamble();
-  printf("invalid operand to address-of operator\n");
+  printf("cannot take the address of an rvalue\n");
 }
 
 void error_indirection(void) {
