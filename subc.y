@@ -240,7 +240,10 @@ expr
       {
         if(!$1->type || !$3->type) { $$ = make_ext(NULL,0); }
         else if(!$1->lvalue) { error_assignable(); $$ = make_ext($1->type,0); }
-        else if($3->type->kind==TYPE_NULL && !is_pointer($1->type)) { error_null(); $$=make_ext($1->type,0); }
+        else if($3->type->kind==TYPE_NULL) {
+            if(is_pointer($1->type)) $$=make_ext($1->type,0);
+            else { error_null(); $$=make_ext($1->type,0); }
+        }
         else if(!same_type($1->type,$3->type)) { error_incompatible(); $$=make_ext($1->type,0); }
         else $$ = make_ext($1->type,0);
       }
@@ -259,6 +262,8 @@ binary
       {
         if(!$1->type || !$3->type) $$=make_ext(NULL,0);
         else if((is_numeric($1->type)&&is_numeric($3->type)) ||
+                (is_pointer($1->type)&&$3->type->kind==TYPE_NULL) ||
+                ($1->type->kind==TYPE_NULL&&is_pointer($3->type)) ||
                 (is_pointer($1->type)&&is_pointer($3->type)&&same_type($1->type,$3->type)))
             $$ = make_ext(make_basic(TYPE_INT),0);
         else { error_comparable(); $$=make_ext(NULL,0); }
