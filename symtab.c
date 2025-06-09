@@ -242,4 +242,5 @@ int same_type(Type *a, Type *b) {
 }
 
 int is_numeric(Type *t) { return t&& (t->kind==TYPE_INT || t->kind==TYPE_CHAR); }
+int is_integer(Type *t) { return t && t->kind==TYPE_INT; }
 int is_pointer(Type *t) { return t && t->kind==TYPE_PTR; }

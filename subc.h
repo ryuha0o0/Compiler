@@ -82,6 +82,7 @@ Type *make_struct(const char *name);
 ExtType *make_ext(Type *t, int lvalue);
 int same_type(Type *a, Type *b);
 int is_numeric(Type *t);
+int is_integer(Type *t);
 int is_pointer(Type *t);
 
 /* struct field helpers */

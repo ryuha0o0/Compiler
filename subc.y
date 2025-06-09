@@ -251,57 +251,59 @@ binary
   : binary RELOP binary
       {
         if(!$1->type || !$3->type) $$=make_ext(NULL,0);
-        else if(is_numeric($1->type) && is_numeric($3->type)) $$ = make_ext(make_basic(TYPE_INT),0);
+        else if(is_numeric($1->type) && is_numeric($3->type) && same_type($1->type,$3->type))
+            $$ = make_ext(make_basic(TYPE_INT),0);
         else { error_comparable(); $$=make_ext(NULL,0); }
       }
   | binary EQUOP binary
       {
         if(!$1->type || !$3->type) $$=make_ext(NULL,0);
-        else if((is_numeric($1->type)&&is_numeric($3->type)) || (is_pointer($1->type)&&is_pointer($3->type)))
+        else if((is_numeric($1->type)&&is_numeric($3->type)) ||
+                (is_pointer($1->type)&&is_pointer($3->type)&&same_type($1->type,$3->type)))
             $$ = make_ext(make_basic(TYPE_INT),0);
         else { error_comparable(); $$=make_ext(NULL,0); }
       }
   | binary '+' binary
       {
         if(!$1->type || !$3->type) $$=make_ext(NULL,0);
-        else if(is_numeric($1->type) && is_numeric($3->type)) $$ = make_ext($1->type,0);
+        else if(is_integer($1->type) && is_integer($3->type)) $$ = make_ext($1->type,0);
         else { error_binary(); $$=make_ext(NULL,0); }
       }
   | binary '-' binary
       {
         if(!$1->type || !$3->type) $$=make_ext(NULL,0);
-        else if(is_numeric($1->type) && is_numeric($3->type)) $$ = make_ext($1->type,0);
+        else if(is_integer($1->type) && is_integer($3->type)) $$ = make_ext($1->type,0);
         else { error_binary(); $$=make_ext(NULL,0); }
       }
   | binary '*' binary
       {
         if(!$1->type || !$3->type) $$=make_ext(NULL,0);
-        else if(is_numeric($1->type) && is_numeric($3->type)) $$ = make_ext($1->type,0);
+        else if(is_integer($1->type) && is_integer($3->type)) $$ = make_ext($1->type,0);
         else { error_binary(); $$=make_ext(NULL,0); }
       }
   | binary '/' binary
       {
         if(!$1->type || !$3->type) $$=make_ext(NULL,0);
-        else if(is_numeric($1->type) && is_numeric($3->type)) $$ = make_ext($1->type,0);
+        else if(is_integer($1->type) && is_integer($3->type)) $$ = make_ext($1->type,0);
         else { error_binary(); $$=make_ext(NULL,0); }
       }
   | binary '%' binary
       {
         if(!$1->type || !$3->type) $$=make_ext(NULL,0);
-        else if(is_numeric($1->type) && is_numeric($3->type)) $$ = make_ext($1->type,0);
+        else if(is_integer($1->type) && is_integer($3->type)) $$ = make_ext($1->type,0);
         else { error_binary(); $$=make_ext(NULL,0); }
       }
   | unary %prec '='                { $$ = $1; }
   | binary LOGICAL_AND binary
       {
         if(!$1->type || !$3->type) $$=make_ext(NULL,0);
-        else if(is_numeric($1->type) && is_numeric($3->type)) $$ = make_ext(make_basic(TYPE_INT),0);
+        else if(is_integer($1->type) && is_integer($3->type)) $$ = make_ext(make_basic(TYPE_INT),0);
         else { error_binary(); $$=make_ext(NULL,0); }
       }
   | binary LOGICAL_OR binary
       {
         if(!$1->type || !$3->type) $$=make_ext(NULL,0);
-        else if(is_numeric($1->type) && is_numeric($3->type)) $$ = make_ext(make_basic(TYPE_INT),0);
+        else if(is_integer($1->type) && is_integer($3->type)) $$ = make_ext(make_basic(TYPE_INT),0);
         else { error_binary(); $$=make_ext(NULL,0); }
       }
   ;
@@ -496,7 +498,7 @@ void error_addressof(void) {
 
 void error_indirection(void) {
   error_preamble();
-  printf("invalid operand to indirection operator\n");
+  printf("indirection requires pointer operand\n");
 }
 
 void error_array(void) {
@@ -516,7 +518,7 @@ void error_member(void) {
 
 void error_strurctp(void) {
   error_preamble();
-  printf("arrow operator requires pointer to struct\n");
+  printf("member reference base type is not a struct pointer\n");
 }
 
 
