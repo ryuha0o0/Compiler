@@ -1,14 +1,14 @@
 
 int main(){
-int a;
-char b;
-int* c;
-char d[10];
-struct temp { int a;} e;
-a++;
---a;
-b++;
-c++; /* error: invalid argument type to unary expression*/
---d; /* error: invalid argument type to unary expression*/
-++e; /* error: invalid argument type to unary expression*/
+int *a;
+int b;
+int c[10];
+a = 0; /* error: incompatible types for assignment operation */
+a = NULL; /* OK */
+a = &b; /* OK */
+a = *b; /* error: indirection requires pointer operand */
+&b = a; /* error: lvalue is not assignable */
+b = &c; /* error: cannot take the address of an rvalue */
+b = 0; /* OK */
+b = *a; /* OK */
 }

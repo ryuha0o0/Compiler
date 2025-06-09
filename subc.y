@@ -323,13 +323,13 @@ unary
   | '-' unary %prec '!'
       {
         if(!$2->type) $$=make_ext(NULL,0);
-        else if(!is_numeric($2->type)) { error_unary(); $$=make_ext(NULL,0); }
+        else if(!is_integer($2->type)) { error_unary(); $$=make_ext(NULL,0); }
         else $$ = make_ext($2->type,0);
       }
   | '!' unary
       {
         if(!$2->type) $$=make_ext(NULL,0);
-        else if(!is_numeric($2->type)) { error_unary(); $$=make_ext(NULL,0); }
+        else if(!is_integer($2->type)) { error_unary(); $$=make_ext(NULL,0); }
         else $$ = make_ext(make_basic(TYPE_INT),0);
       }
   | unary INCOP %prec STRUCTOP
